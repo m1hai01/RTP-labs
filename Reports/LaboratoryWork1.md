@@ -182,8 +182,79 @@ This function loops through all the possible combinations of a and b between 1 a
 }
 ```
 
-In this implementation, we use a result list to store the elements of the list after removing the consecutive duplicates. We also use a variable lastElement to keep track of the last element we added to the result list. In the for loop, we iterate over each element in the input list. If the current element is different from the last element, we add it to the result list and update the lastElement variable.
+In this implementation, I use a result list to store the elements of the list after removing the consecutive duplicates. I also use a variable lastElement to keep track of the last element I added to the result list. In the for loop, I iterate over each element in the input list. If the current element is different from the last element, I add it to the result list and update the lastElement variable.
 
+**Task 12 (Main Task)** -- Write a function that, given an array of strings, will return the words that can
+be typed using only one row of the letters on an English keyboard layout.
+
+```scala
+    def lineWords(words: Array[String]): Array[String] = {
+    val rows = List("qwertyuiop", "asdfghjkl", "zxcvbnm")
+    words.filter(word => rows.exists(row => word.toLowerCase.forall(c => row.contains(c))))
+  }
+```
+I implement the  function that takes an array of strings words as input and defines a list rows that represents the rows of the English keyboard. It then uses the filter method on the words array to return a new array that contains only the words that can be typed using one row of the keyboard. The condition for filtering checks if the word can be typed using any of the rows, which is done by checking if all characters in the word are contained in the row using the forall method.
+
+**Task 13 (Main Task)** -- Write a function that eliminates consecutive duplicates in a list.
+
+```scala
+    def encode(s: String, n: Int): String = {
+    s.map(c => (c + n).toChar)
+  }
+  def decode(s: String, n: Int): String = {
+    s.map(c => (c - n).toChar)
+  }
+```
+In my implementation I using the map method to apply a transformation to each character c in the string s. The transformation is taking the ASCII value of c and adding the shift value n to it, then converting the resulting value back to a character using the toChar method. This effectively shifts the character by n positions in the ASCII table.
+
+**Task 14 (Main Task)** -- White a function that, given a string of digits from 2 to 9, would return all
+possible letter combinations that the number could represent (think phones with buttons).
+
+
+```scala
+    def letterCombinations(s: String): List[String] = {
+    if (s.isEmpty) return List()
+
+    val phoneMap = Map(
+      '2' -> "abc",
+      '3' -> "def",
+      '4' -> "ghi",
+      '5' -> "jkl",
+      '6' -> "mno",
+      '7' -> "pqrs",
+      '8' -> "tuv",
+      '9' -> "wxyz"
+    )
+
+    s.foldLeft(List("")) { (combinations, s) =>
+      for {
+        combination <- combinations
+        char <- phoneMap(s)
+      } yield combination + char
+    }
+  }
+}
+```
+In my implementation I use phoneMap map to look up the set of letters for each digit, but instead of using recursion, it uses the foldLeft method to iterate over the input string and build up the list of combinations.
+
+The foldLeft method takes two arguments: an initial value and a function. The initial value is an empty list containing a single empty string, since this is the only possible combination for an empty input string. The function takes two arguments: the current list of combinations and the current digit being processed. It then generates a new list of combinations by iterating over the current list of combinations and the set of letters for the current digit, and concatenating each combination with each letter.
+
+The resulting list of combinations is then returned by the function.
+
+
+
+**Task 15 (Main Task)** -- White a function that, given an array of strings, would group the anagrams
+together.
+
+```scala
+    def groupAnagrams(s: Array[String]): Map[String, List[String]] = {
+    val groups = s.groupBy(_.sorted)
+    groups.view.mapValues(_.toList).toMap
+  }
+```
+In my implementation first groups the input array strs by sorting each string in the array and using the sorted version as the grouping key. The resulting groups variable is a Map where each key is a sorted string, and each value is a list of strings from the input array that are anagrams of each other.
+
+The function then uses mapValues to transform the values in the groups map from arrays to lists, which is the expected output format.
 
 
 ## Bibliography

@@ -111,6 +111,69 @@ class MinimalTasksClass {
     }
     result
   }
+
+  //TASK 12
+  //Selectam elementele care satisfac conditia de a avea toate caracterele dintr-o linie a tastaturii-filter
+  //Verificam daca fiecare element din lista de cuvinte are toate caracterele dintr-o linie a tastaturii-exists
+  //Verificam daca toate caracterele dintr-un cuvant sunt continute in linia curenta-forall
+  //Verificam daca un caracter se afla in linia curenta-contains
+  def lineWords(words: Array[String]): Array[String] = {
+    val rows = List("qwertyuiop", "asdfghjkl", "zxcvbnm")
+    words.filter(word => rows.exists(row => word.toLowerCase.forall(c => row.contains(c))))
+  }
+
+  //TASK 13
+  // pentru fiecare caracter din sirul de intrare, se aduna cu n
+  // apoi se converteste inapoi la tipul Char
+  // se obtine un sir de caractere care este returnat
+  //
+  def encode(s: String, n: Int): String = {
+    s.map(c => (c + n).toChar)
+  }
+  def decode(s: String, n: Int): String = {
+    s.map(c => (c - n).toChar)
+  }
+
+  //TASK 14
+  def letterCombinations(s: String): List[String] = {
+    if (s.isEmpty) return List()
+
+    val phoneMap = Map(
+      '2' -> "abc",
+      '3' -> "def",
+      '4' -> "ghi",
+      '5' -> "jkl",
+      '6' -> "mno",
+      '7' -> "pqrs",
+      '8' -> "tuv",
+      '9' -> "wxyz"
+    )
+
+    // avem lista initiala cu valori intermediare care se numeste combinations
+    // combinatiile initiale sunt doar un string gol
+    // pentru fiecare caracter din sirul de intrare, combinatiile initiale sunt
+    // inlocuite cu combinatiile posibile ale caracterului curent
+    // combinatiile posibile sunt obtinute prin concatenarea caracterului curent
+    // cu fiecare combinatie initiala
+    // adica daca avem combinatiile initiale ["a", "b", "c"] si caracterul curent
+    // este "d", combinatiile finale vor fi ["ad", "bd", "cd"]
+    // este "e" combinatiile finale vor fi ["ae", "be", "ce"]
+    // este "f" combinatiile finale vor fi ["af", "bf", "cf"]
+    // la urma obtinem combinatiile finale ["ad", "bd", "cd", "ae", "be", "ce", "af", "bf", "cf"]
+    s.foldLeft(List("")) { (combinations, s) =>
+      for {
+        combination <- combinations
+        char <- phoneMap(s)
+      } yield combination + char
+    }
+  }
+  //TASK 15
+  def groupAnagrams(s: Array[String]): Map[String, List[String]] = {
+    val groups = s.groupBy(_.sorted)
+    groups.view.mapValues(_.toList).toMap
+  }
+
+
 }
 
 
