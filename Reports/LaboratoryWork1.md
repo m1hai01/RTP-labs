@@ -15,7 +15,7 @@ Execute it.
 
 Here I have created an object Main which contains a static method that displays in the console "Hello PTR".
  
- **Bonus ** --Create a unit test for your project.
+ **Bonus** -- Create a unit test for your project.
  ```scala
  class CylinderAreaTest extends AnyFunSuite {
 
