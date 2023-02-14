@@ -1,4 +1,9 @@
-[error] sbt.librarymanagement.ResolveException: Error downloading org.scala-lang.modules:scala-parser-combinators_3:1.1.2
+[error] sbt.librarymanagement.ResolveException: Error downloading io.get-coursier:sbt-coursier;sbtVersion=1.0;scalaVersion=3:1.0.3
+[error]   Not found
+[error]   Not found
+[error]   not found: C:\Users\mustu\.ivy2\localio.get-coursier\sbt-coursier\scala_3\sbt_1.0\1.0.3\ivys\ivy.xml
+[error]   not found: https://repo1.maven.org/maven2/io/get-coursier/sbt-coursier_3_1.0/1.0.3/sbt-coursier-1.0.3.pom
+[error] Error downloading org.scala-lang.modules:scala-parser-combinators_3:1.1.2
 [error]   Not found
 [error]   Not found
 [error]   not found: C:\Users\mustu\.ivy2\localorg.scala-lang.modules\scala-parser-combinators_3\1.1.2\ivys\ivy.xml
@@ -27,13 +32,18 @@
 [error] 	at sbt.Execute.$anonfun$submit$1(Execute.scala:282)
 [error] 	at sbt.ConcurrentRestrictions$$anon$4.$anonfun$submitValid$1(ConcurrentRestrictions.scala:265)
 [error] 	at sbt.CompletionService$$anon$2.call(CompletionService.scala:64)
-[error] 	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
-[error] 	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:539)
-[error] 	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
-[error] 	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
-[error] 	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
-[error] 	at java.base/java.lang.Thread.run(Thread.java:833)
-[error] (ssExtractDependencies) sbt.librarymanagement.ResolveException: Error downloading org.scala-lang.modules:scala-parser-combinators_3:1.1.2
+[error] 	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+[error] 	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+[error] 	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+[error] 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+[error] 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+[error] 	at java.lang.Thread.run(Thread.java:750)
+[error] (ssExtractDependencies) sbt.librarymanagement.ResolveException: Error downloading io.get-coursier:sbt-coursier;sbtVersion=1.0;scalaVersion=3:1.0.3
+[error]   Not found
+[error]   Not found
+[error]   not found: C:\Users\mustu\.ivy2\localio.get-coursier\sbt-coursier\scala_3\sbt_1.0\1.0.3\ivys\ivy.xml
+[error]   not found: https://repo1.maven.org/maven2/io/get-coursier/sbt-coursier_3_1.0/1.0.3/sbt-coursier-1.0.3.pom
+[error] Error downloading org.scala-lang.modules:scala-parser-combinators_3:1.1.2
 [error]   Not found
 [error]   Not found
 [error]   not found: C:\Users\mustu\.ivy2\localorg.scala-lang.modules\scala-parser-combinators_3\1.1.2\ivys\ivy.xml
