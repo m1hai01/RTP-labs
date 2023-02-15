@@ -27,6 +27,17 @@ Here I have created an object Main which contains a static method that displays 
 ```
 It is a unit test for Cylinder Area Task.
 
+**Bonus** -- Create a unit test for your project.
+ ```scala
+ class HelloPtrTest extends  AnyFunSuite {
+  test("HelloPtr.hello") {
+    val m = new MinimalTasksClass
+    assert(m.helloPTR() == "Hello PTR")
+  }
+}
+```
+It is a unit test for Hello World function.
+
 ## P0W2
 
 **Task 1 (Minimal Task)** -- Write a function that determines whether an input integer is prime.
