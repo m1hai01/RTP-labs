@@ -5,6 +5,11 @@ import util.Random
 
 class MinimalTasksClass {
 
+  // Hello PTR
+  def helloPTR(): String = {
+    "Hello PTR"
+  }
+
   //TASK 1
   def isPrime(n: Int): Boolean = {
       // check if n is divisible by any number in the range 2 until n.
@@ -64,6 +69,9 @@ class MinimalTasksClass {
     }
 
     //TASK 7
+  //The function then splits the originalString into individual words using the space
+  //character as a separator, and applies the getOrElse method to each word to look up its
+  //translation in the dictionary. If a translation is found, it is used; otherwise, the original word is used.
     def translator(dictionary: Map[String, String], originalString: String): String = {
       originalString.split(" ").map(word => dictionary.getOrElse(word, word)).mkString(" ")
     }
@@ -81,6 +89,8 @@ class MinimalTasksClass {
   }
 
   //TASK 9
+  //drop-string that contains all characters of s except the first newStartIndex characters.
+  //
   def rotateLeft(s: List[Int], n: Int): List[Int] = {
     val newStartIndex = n % s.length
     s.drop(newStartIndex) ++ s.take(newStartIndex)
@@ -100,6 +110,7 @@ class MinimalTasksClass {
     triangles
   }
   //TASK 11
+  //verificam cu precedentul
   def removeConsecutiveDuplicates(s: List[Int]): List[Int] = {
     var result = List[Int]()
     var lastElement = Int.MinValue

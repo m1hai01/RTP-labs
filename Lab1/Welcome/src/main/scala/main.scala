@@ -1,12 +1,28 @@
+import ActorLab.Main1.QueueActor
+import ActorLab.Minimal1.PrinterActor
+import ActorLab.Minimal2.ModifierActor
+import ActorLab.Minimal3.{MonitoredActor, MonitoringActor}
+import ActorLab.Minimal4.Averager
 import Lab1.MinimalTasksClass
+import akka.actor.{Actor, PoisonPill}
+import akka.pattern.ask
+//import akka.actor.typed.ActorSystem
+import akka.actor._
 
 import scala.collection.mutable.ListBuffer
+import akka.actor.Props
 
+import scala.collection.mutable.ListBuffer
+import akka.actor.Actor
+import akka.actor.ActorSystem
 object main {
   def main(args: Array[String]): Unit = {
-    println("Hello PTR \n");
 
     val minimalTasksClass = new MinimalTasksClass
+
+    /*//Hello PTR
+    val hello = minimalTasksClass.helloPTR()
+    println(s"$hello \n")
 
     //TASK 1
     val num = 17
@@ -63,6 +79,7 @@ object main {
     //TASK 10
     val rs = minimalTasksClass.listRightAngleTriangles()
     println(s"TASK 10: All tuples a, b, c such that a^2+b^2 = c^2 and a, b ≤ 20: \n  $rs \n")
+
     //TASK 11
     val lst1 = List(1, 2, 2, 2, 4, 8, 4)
     val res1 = minimalTasksClass.removeConsecutiveDuplicates(lst1)
@@ -92,5 +109,75 @@ object main {
       val task15 = minimalTasksClass.groupAnagrams(Array("eat", "tea", "tan", "ate", "nat", "bat"))
       println(s"TASK 15: Group Anagrams $task15 \n")
 
+*/
+    // WEEK 3 - an actor is born
+
+    //first minimal task
+
+    /*val system = ActorSystem("PrinterSystem")
+    val printer = system.actorOf(Props[PrinterActor], "printer")
+
+    printer ! "Hello, world!"
+    printer ! 42
+    printer ! List(1, 2, 3)
+
+    system.terminate()*/
+
+
+    /*//second minimal task
+    val system = ActorSystem("MySystem")
+    val myActor = system.actorOf(Props[ModifierActor], "myActor")
+
+    myActor ! 10
+    myActor ! "Hello"
+    myActor ! (10, "Hello")
+
+    Thread.sleep(1000) // wait for the actor to finish processing
+
+    system.terminate()*/
+
+  /*//third minimal task
+  val system = ActorSystem("System")
+
+    val monitoredActor = system.actorOf(Props[MonitoredActor], "monitoredActor")
+    val monitoringActor = system.actorOf(Props(new MonitoringActor(monitoredActor)), "monitoringActor")
+
+    monitoredActor ! "Hello"
+    monitoredActor ! "World"
+    monitoredActor ! PoisonPill
+
+    system.terminate()*/
+
+  //fourth minimal task
+    val system = ActorSystem("AveragerSystem")
+
+    val averager = system.actorOf(Props[Averager], name = "Averager")
+
+    println("Current average is 0")
+    averager ! 10
+    averager ! 10
+    averager ! 10
+
+    /*//first main task
+
+    val Pid = new_queue()
+    push(Pid, 4)
+    push(Pid, 5)
+    pop(Pid)
+    pop(Pid)
+*/
+  }
+
+  def new_queue(): ActorRef = {
+    val system = ActorSystem("NewQueueActor")
+    return system.actorOf(Props[QueueActor], "queueActor")
+  }
+
+  def push(actor: ActorRef, number: Int): Unit = {
+    actor ! number
+  }
+
+  def pop(actor: ActorRef): Unit = {
+    actor ! "pop"
   }
 }
