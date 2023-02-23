@@ -15,6 +15,28 @@ Execute it.
 
 Here I have created an object Main which contains a static method that displays in the console "Hello PTR".
  
+ **Bonus** -- Create a unit test for your project.
+ ```scala
+ class CylinderAreaTest extends AnyFunSuite {
+
+  test("CylinderArea.area") {
+    val m = new MinimalTasksClass
+    assert(m.cylinderArea(2, 3) == 94.24777960769379)
+  }
+}
+```
+It is a unit test for Cylinder Area Task.
+
+**Bonus** -- Create a unit test for your project.
+ ```scala
+ class HelloPtrTest extends  AnyFunSuite {
+  test("HelloPtr.hello") {
+    val m = new MinimalTasksClass
+    assert(m.helloPTR() == "Hello PTR")
+  }
+}
+```
+It is a unit test for Hello World function.
 
 ## P0W2
 
