@@ -4,17 +4,18 @@ import ActorLab.Minimal2.ModifierActor
 import ActorLab.Minimal3.{MonitoredActor, MonitoringActor}
 import ActorLab.Minimal4.Averager
 import Lab1.MinimalTasksClass
-import akka.actor.{Actor, PoisonPill}
-import akka.pattern.ask
-//import akka.actor.typed.ActorSystem
+import P0W4.Main1.SupervisorObject
+import P0W4.Minimal1.PrintActorObject
+import akka.actor
 import akka.actor._
+import akka.pattern.ask
+import akka.routing.ActorRefRoutee
+import akka.util.Timeout
 
-import scala.collection.mutable.ListBuffer
-import akka.actor.Props
+import scala.concurrent.Await
+import scala.concurrent.duration.DurationInt
 
-import scala.collection.mutable.ListBuffer
-import akka.actor.Actor
-import akka.actor.ActorSystem
+
 object main {
   def main(args: Array[String]): Unit = {
 
@@ -149,14 +150,14 @@ object main {
     system.terminate()*/
 
   //fourth minimal task
-    val system = ActorSystem("AveragerSystem")
+    /*val system = ActorSystem("AveragerSystem")
 
     val averager = system.actorOf(Props[Averager], name = "Averager")
 
     println("Current average is 0")
     averager ! 10
     averager ! 10
-    averager ! 10
+    averager ! 10*/
 
     /*//first main task
 
@@ -166,18 +167,58 @@ object main {
     pop(Pid)
     pop(Pid)
 */
-  }
 
-  def new_queue(): ActorRef = {
-    val system = ActorSystem("NewQueueActor")
-    return system.actorOf(Props[QueueActor], "queueActor")
-  }
 
-  def push(actor: ActorRef, number: Int): Unit = {
-    actor ! number
-  }
 
-  def pop(actor: ActorRef): Unit = {
-    actor ! "pop"
+
+
+    //P0W4
+  /*  //Minimal1
+    val system = actor.ActorSystem("PrintActorSupervisor")
+    val minimal1supervisor = system.actorOf(P0W4.Minimal1.SupervisorActor.props(), "supervisor")
+
+    implicit val timeout: Timeout = Timeout(5.seconds)
+    //sends a SendWorkers message to the SupervisorActor named minimal1supervisor using the ask pattern (?),
+    // which returns a Future.
+    val future = minimal1supervisor ? P0W4.Minimal1.SupervisorActor.SendWorkers
+    //Await.result method is called on the future, which will block the thread until a result is available or the timeout expires.
+    // Once the future is completed, the result is cast to a Vector of ActorRefRoutee objects named workers.
+    val workers = Await.result(future, timeout.duration).asInstanceOf[Vector[ActorRefRoutee]]
+
+    workers.head.ref ! PrintActorObject.Print("Hello")
+    workers.head.ref ! PrintActorObject.Kill
+    workers.head.ref ! PrintActorObject.Print("Hello")*/
+    
+
+    //Minimal2
+    val system1 = actor.ActorSystem("StringSupervisor")
+    val stringSupervisor = system1.actorOf(P0W4.Main1.SupervisorObject.props(), "supervisor")
+    //first for testing
+      stringSupervisor ! SupervisorObject.SendMessage("MoNsTrUl MaNaNcA BoRs!")
+    Thread.sleep(1500)
+    //second give exeption and restart
+    stringSupervisor ! SupervisorObject.SendMessage("MoNsTrUl MaNaNcA BoRs!@")
+    Thread.sleep(3500)
+    //third for verify if restart and give messages
+    stringSupervisor ! SupervisorObject.SendMessage("MoNsTrUl MaNaNcA BoRs!")
+
+
   }
+  /*def new_queue(): ActorRef = {
+      val system = ActorSystem("NewQueueActor")
+      return system.actorOf(Props[QueueActor], "queueActor")
+    }
+
+    def push(actor: ActorRef, number: Int): Unit = {
+      actor ! number
+    }
+
+    def pop(actor: ActorRef): Unit = {
+      actor ! "pop"
+    }*/
 }
+
+
+
+
+

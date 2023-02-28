@@ -408,6 +408,191 @@ In my implementation, QueueActor maintains a mutable ArrayBuffer[Int] named queu
 
 When the actor receives a "pop" message, it first checks if the queue is empty using the isEmpty method of the queue variable. If the queue is empty, the actor prints the message "Queue is empty". Otherwise, the actor retrieves the first element of the queue using the queue(0) syntax, prints the element to the console, and removes it from the queue using the remove method.
 
+## P0W4 – The Actor is dead.. Long live the Actor
+
+**Task 1 (Minimal Task)** --  Create an actor which receives Create a supervised pool of identical worker actors. The number of actors is static, given at initialization. Workers should be individually addressable. Worker actors should echo any message they receive. If an actor dies (by receiving a “kill” message), it should be restarted by the supervisor. Logging is welcome.
+
+```scala
+   class SupervisorClass extends Actor with ActorLogging {
+
+  import SupervisorActor._
+//The defaultStrategy is used, which means that
+// the supervisor will restart the worker actor
+// if it throws an exception.
+  override val supervisorStrategy: SupervisorStrategy =
+    SupervisorStrategy.defaultStrategy
+
+  //distribute messages among a group of actors.
+  //what logic of transmiting messages
+  private val router: Router = {
+    Router(RoundRobinRoutingLogic(), routees)
+  }
+  private val workerCount = 3
+  //the group of worker actors
+  // that the supervisor is responsible for supervising
+  private var routees = IndexedSeq.fill(workerCount) {
+    val name = workerName()
+    // Each worker actor is created
+    val r = context.actorOf(PrintActorObject.props(name), name)
+    context.watch(r)
+    ActorRefRoutee(r)
+  }
+
+  println(routees)
+
+  override def receive: Receive = {
+    case SendMessage(message) =>
+      log.info("Sending messages to all workers: {}", message)
+      router.route(PrintActorObject.Print(message), sender())
+      //transmit the list of references of workes back to the sender
+    case SendWorkers =>
+      log.info("Sending workers")
+      sender() ! routees
+    case Terminated(ref) =>
+      log.info("Worker {} terminated, restarting...", ref.path.name)
+
+      val index = routees.indexOf(ref.actorRef)
+      routees = routees.patch(index, Nil, 1)
+
+      val name = workerName()
+      val r = context.actorOf(PrintActorObject.props(name), name)
+      context.watch(r)
+      router.removeRoutee(ref)
+      router.addRoutee(ActorRefRoutee(r))
+  }
+
+  private def workerName(): String = {
+    s"worker-${java.util.UUID.randomUUID().toString}"
+  }
+}
+```
+
+The SupervisorClass defines an actor that is responsible for creating and supervising a group of PrintActorClass workers. It creates a router that distributes messages among the worker actors using round-robin routing logic. It also handles the termination of worker actors by removing the terminated actor from the router and creating a new worker actor to replace it.
+
+The SendMessage message can be sent to the SupervisorActor to distribute a message to all the worker actors. The SendWorkers message can be sent to the SupervisorActor to receive a list of references to the worker actors.
+
+```scala
+class PrintActorClass(name: String) extends Actor with ActorLogging {
+
+  override def receive: Receive = {
+    case Print(message) =>
+      log.info("Worker Actor {} received message: {}", name, message)
+      sender() ! s"Worker Actor $name print: $message"
+    case Kill =>
+      log.warning("Worker Actor {} received Kill ", name)
+      throw new Exception(s"Worker Actor $name is killed")
+  }
+
+```
+
+The PrintActorClass defines an actor that can receive two types of messages: Print and Kill. When it receives a Print message, it logs the message and sends back a response to the sender with the message content. When it receives a Kill message, it logs a warning and throws an exception to simulate a failure.
+
+**Task 2 (Main Task)** --  Create a supervised processing line to clean messy strings. The first worker in the line would split the string by any white spaces (similar to Python’s str.split method).The second actor will lowercase all words and swap all m’s and n’s (you nomster!). The third
+actor will join back the sentence with one space between words (similar to Python’s str.join method). Each worker will receive as input the previous actor’s output, the last actor printing the result on screen. If any of the workers die because it encounters an error, the whole processing line needs to be restarted. Logging is welcome.
+
+```scala
+  class Supervisor1 extends Actor with ActorLogging {
+  override val supervisorStrategy: SupervisorStrategy =
+    AllForOneStrategy(
+      maxNrOfRetries = 5,
+      withinTimeRange = 1.minute,
+      loggingEnabled = true
+    )(SupervisorStrategy.defaultDecider)
+
+  private val router: Router = {
+    Router(RoundRobinRoutingLogic(), routees)
+  }
+  private var routees = createRoutees()
+  private var splitterRef: ActorRef = _
+
+  override def receive: Receive = {
+    case SupervisorObject.SendMessage(message) =>
+      splitterRef ! StringSplitter.SplitMessage(message)
+    case Terminated(ref) =>
+      log.info("Worker {} terminated, restarting...", ref.path.name)
+
+      val newRoutees = createRoutees()
+      for (r <- routees) {
+        router.removeRoutee(r)
+      }
+
+      for (r <- newRoutees) {
+        router.addRoutee(r)
+      }
+  }
+
+  private def createRoutees(): IndexedSeq[ActorRefRoutee] = {
+    var result = IndexedSeq.empty[ActorRefRoutee]
+
+    val printer = context.actorOf(StringPrinter.props(), workerName())
+    val joiner = context.actorOf(JoinerObj.props(printer), workerName())
+    val lowercaserAndSwapper = context.actorOf(StringLowercaserAndSwapper.props(joiner), workerName())
+    val splitter = context.actorOf(StringSplitter.props(lowercaserAndSwapper), workerName())
+    splitterRef = splitter
+
+    context.watch(printer)
+    context.watch(splitter)
+    context.watch(lowercaserAndSwapper)
+    context.watch(joiner)
+
+    result = result :+ ActorRefRoutee(printer)
+    result = result :+ ActorRefRoutee(splitter)
+    result = result :+ ActorRefRoutee(lowercaserAndSwapper)
+    result = result :+ ActorRefRoutee(joiner)
+
+    result
+  }
+```
+
+The main actor in the system is the Supervisor1 actor, which has the responsibility of creating and supervising the other actors. The Supervisor1 actor receives messages of type SendMessage, which contain a string message that needs to be processed. The string message is first passed to the SplitterActor actor, which splits the message into an array of words and passes it to the LowerAndSwapActor actor. The LowerAndSwapActor actor converts all the characters to lowercase and swaps all "m" and "n" characters before passing the processed message to the JoinerActor actor. The JoinerActor actor concatenates the words into a single string and passes it to the PrinterActor actor, which logs the final message to the console.
+
+```scala
+class SplitterActor(nextActor: ActorRef) extends Actor with ActorLogging {
+  override def receive: Receive = {
+    case StringSplitter.SplitMessage(message) =>
+      if (message.contains('@')) {
+        throw new IllegalArgumentException("Message is empty")
+      }
+      val words = message.split("\\s+")
+      nextActor ! LowercaseAndSwap(words)
+  }
+
+  class LowerAndSwapActor(nextActor: ActorRef) extends Actor with ActorLogging {
+  override def receive: Receive = {
+    case StringLowercaserAndSwapper.LowercaseAndSwap(words) => {
+      val lowercasedWords = words.map(_.toLowerCase)
+      val swappedMsWithNs = lowercasedWords.map(str => str.map {
+        case 'm' => 'n'
+        case 'n' => 'm'
+        case c => c
+      })
+
+      nextActor ! JoinMessage(swappedMsWithNs)
+    }
+  }
+
+  class JoinerActor(nextActor: ActorRef) extends Actor with ActorLogging {
+  override def receive: Receive = {
+    case JoinerObj.JoinMessage(message) =>
+      val joinedWords = message.mkString(" ")
+      nextActor ! StringPrinter.PrintMessage(joinedWords)
+  }
+
+  class PrinterActor extends Actor with ActorLogging {
+  override def receive: Receive = {
+    case StringPrinter.PrintMessage(message) =>
+      log.info(message)
+  }
+
+```
+
+The SplitterActor actor is responsible for splitting a string into words and sending them to the next actor in the pipeline. It receives a message of type StringSplitter.SplitMessage and checks if the string contains the "@" character.
+
+The LowerAndSwapActor actor is responsible for converting each word in a message to lowercase and swapping the "m" and "n" characters. It receives a message of type StringLowercaserAndSwapper.LowercaseAndSwap containing an array of words, converts each word to lowercase using the toLowerCase() method, and swaps the "m" and "n" characters using a map operation.
+
+The JoinerActor actor is responsible for joining the words in a message into a single string and sending it to the next actor.
+
+The PrinterActor actor is responsible for printing the final string to the console.
 
 ## Bibliography
 
