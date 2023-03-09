@@ -26,14 +26,13 @@ class PrintActorClass(name: String) extends Actor with ActorLogging {
 }
 object SupervisorActor {
   def props(): Props = Props(new SupervisorClass())
-
   case class SendMessage(message: String)
-
   case object SendWorkers
 }
 
 class SupervisorClass extends Actor with ActorLogging {
-
+//The SupervisorClass actor is responsible for
+  // supervising a group of PrintActorClass actors.
   import SupervisorActor._
 //The defaultStrategy is used, which means that
 // the supervisor will restart the worker actor
@@ -47,8 +46,8 @@ class SupervisorClass extends Actor with ActorLogging {
     Router(RoundRobinRoutingLogic(), routees)
   }
   private val workerCount = 3
-  //the group of worker actors
-  // that the supervisor is responsible for supervising
+  //In the SupervisorClass, the routees variable is an
+  // indexed sequence that stores references to all the worker actors.
   private var routees = IndexedSeq.fill(workerCount) {
     val name = workerName()
     // Each worker actor is created
@@ -67,6 +66,8 @@ class SupervisorClass extends Actor with ActorLogging {
     case SendWorkers =>
       log.info("Sending workers")
       sender() ! routees
+      //the supervisor actor removes the terminated worker actor from the router,
+    // creates a new worker actor, and adds it to the router.
     case Terminated(ref) =>
       log.info("Worker {} terminated, restarting...", ref.path.name)
 
@@ -80,6 +81,7 @@ class SupervisorClass extends Actor with ActorLogging {
       router.addRoutee(ActorRefRoutee(r))
   }
 
+  //The workerName() method generates a unique name for each worker actor
   private def workerName(): String = {
     s"worker-${java.util.UUID.randomUUID().toString}"
   }

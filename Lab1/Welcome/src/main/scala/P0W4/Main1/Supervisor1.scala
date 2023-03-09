@@ -7,25 +7,32 @@ import akka.routing.{ActorRefRoutee, RoundRobinRoutingLogic, Router}
 
 import scala.concurrent.duration.DurationInt
 
+// The Supervisor1 actor is responsible for supervising
+// a set of child actors that perform some processing on incoming messages.
 class Supervisor1 extends Actor with ActorLogging {
-  override val supervisorStrategy: SupervisorStrategy =
+  override val supervisorStrategy: SupervisorStrategy = {
+    //if one of the child actors fails, all the other child actors will be stopped and
+    // restarted with the same message.
     AllForOneStrategy(
       maxNrOfRetries = 5,
       withinTimeRange = 1.minute,
       loggingEnabled = true
     )(SupervisorStrategy.defaultDecider)
-
+  }
+// route(directioneaza) incoming messages to its child actors
   private val router: Router = {
     Router(RoundRobinRoutingLogic(), routees)
   }
+  //mutable sequence of child actors
   private var routees = createRoutees()
+  //reference to the child actor
   private var splitterRef: ActorRef = _
 
   override def receive: Receive = {
     case SupervisorObject.SendMessage(message) =>
       splitterRef ! StringSplitter.SplitMessage(message)
     case Terminated(ref) =>
-      log.info("Worker {} terminated, restarting...", ref.path.name)
+      log.info("Worker {} terminated and restarting", ref.path.name)
 
       val newRoutees = createRoutees()
       for (r <- routees) {
@@ -73,7 +80,7 @@ object SupervisorObject {
 class SplitterActor(nextActor: ActorRef) extends Actor with ActorLogging {
   override def receive: Receive = {
     case StringSplitter.SplitMessage(message) =>
-      if (message.contains('@')) {
+      if (message.contains('*')) {
         throw new IllegalArgumentException("Message is empty")
       }
       val words = message.split("\\s+")

@@ -594,6 +594,53 @@ The JoinerActor actor is responsible for joining the words in a message into a s
 
 The PrinterActor actor is responsible for printing the final string to the console.
 
+## P0W5 – May the Web be with you
+
+**Task 1 (Minimal Task)** -- Write an application that would visit this [link](https://quotes.toscrape.com/). Print out the HTTP response
+status code, response headers and response body.
+
+```scala
+      // Send an HTTP GET request to the specified URL using the Akka HTTP client library
+      val responseFuture: Future[HttpResponse] = Http().singleRequest(
+        HttpRequest(uri = page, method = HttpMethods.GET))
+
+
+          case Success(res) =>
+            log.info("Response: {}", res)
+
+            // This tells Akka HTTP to unmarshal(scoata) the response entity into a String.
+            Unmarshal(res.entity).to[String]
+
+```
+
+**Task 2 (Minimal Task)** -- Continue your previous application. Extract all quotes from the HTTP
+response body. Collect the author of the quote, the quote text and tags. Save the data
+into a list of maps, each map representing a single quote.
+
+```scala
+ // Parse the HTML string using the Jsoup library and extract the quotes
+//which extracts all the quotes from the HTML.
+  val quotes = Jsoup.parse(htmlString).select("div.quote")
+  quotes.forEach(
+  quote => {
+  val quoteText = quote.select("span.text").text()
+  val quoteAuthor = quote.select("small.author").text()
+  val quoteTags = quote.select("div.tags a.tag").eachText().asScala.toList
+
+  // Create a new Quote object for each quote and add it to the list of quotes
+  val quoteClass = new Quote(quoteText, quoteAuthor, quoteTags)
+  val quoteMap = HashMap[String, Quote]()
+  quoteMap.put(quoteText, quoteClass)
+  listQuotes += quoteMap
+
+  log.info("Quote: {}", quoteClass)
+                  
+```
+
+
+
+
+
 ## Bibliography
 
 - Installation guide to install [Scala](https://docs.scala-lang.org/getting-started/index.html).

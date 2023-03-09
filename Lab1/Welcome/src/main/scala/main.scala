@@ -6,6 +6,7 @@ import ActorLab.Minimal4.Averager
 import Lab1.MinimalTasksClass
 import P0W4.Main1.SupervisorObject
 import P0W4.Minimal1.PrintActorObject
+import P0W5.Minimal1.PrintResponse
 import akka.actor
 import akka.actor._
 import akka.pattern.ask
@@ -173,7 +174,7 @@ object main {
 
 
     //P0W4
-  /*  //Minimal1
+    /*//Minimal1
     val system = actor.ActorSystem("PrintActorSupervisor")
     val minimal1supervisor = system.actorOf(P0W4.Minimal1.SupervisorActor.props(), "supervisor")
 
@@ -184,23 +185,29 @@ object main {
     //Await.result method is called on the future, which will block the thread until a result is available or the timeout expires.
     // Once the future is completed, the result is cast to a Vector of ActorRefRoutee objects named workers.
     val workers = Await.result(future, timeout.duration).asInstanceOf[Vector[ActorRefRoutee]]
-
     workers.head.ref ! PrintActorObject.Print("Hello")
     workers.head.ref ! PrintActorObject.Kill
     workers.head.ref ! PrintActorObject.Print("Hello")*/
     
 
-    //Minimal2
+    /*//Minimal2
     val system1 = actor.ActorSystem("StringSupervisor")
     val stringSupervisor = system1.actorOf(P0W4.Main1.SupervisorObject.props(), "supervisor")
     //first for testing
-      stringSupervisor ! SupervisorObject.SendMessage("MoNsTrUl MaNaNcA BoRs!")
+      stringSupervisor ! SupervisorObject.SendMessage("MoNsTrUl MaNaNcA BoRs")
     Thread.sleep(1500)
     //second give exeption and restart
-    stringSupervisor ! SupervisorObject.SendMessage("MoNsTrUl MaNaNcA BoRs!@")
+    stringSupervisor ! SupervisorObject.SendMessage("MoNsTrUl MaNaNcA BoRs*")
     Thread.sleep(3500)
     //third for verify if restart and give messages
-    stringSupervisor ! SupervisorObject.SendMessage("MoNsTrUl MaNaNcA BoRs!")
+    stringSupervisor ! SupervisorObject.SendMessage("MoNsTrUl MaNaNcA BoRs")*/
+
+    //P0W5
+    val system = actor.ActorSystem("QuoteActorSupervisor")
+
+    val quoteSupervisor = system.actorOf(P0W5.Minimal1.PrintResponse.props(), "supervisor")
+
+    quoteSupervisor ! PrintResponse.VisitPage("https://quotes.toscrape.com/")
 
 
   }
