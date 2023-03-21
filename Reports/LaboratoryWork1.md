@@ -637,10 +637,16 @@ into a list of maps, each map representing a single quote.
                   
 ```
 
+**Task 3 (Minimal Task)** -- Continue your previous application. Persist the list of quotes into a file.
+Encode the data into JSON format. Name the file quotes.json
 
-
-
-
+```scala
+// Convert the list of quotes to a JSON string using the Jackson library
+ val mapper = new ObjectMapper().registerModule(DefaultScalaModule);
+  val jsonString = mapper.writeValueAsString(listQuotes)
+  val jsonFile = new java.io.File("src/main/scala/P0W5/Minimal1/quotes.json")
+  mapper.writeValue(jsonFile, jsonString)
+```
 ## Bibliography
 
 - Installation guide to install [Scala](https://docs.scala-lang.org/getting-started/index.html).
