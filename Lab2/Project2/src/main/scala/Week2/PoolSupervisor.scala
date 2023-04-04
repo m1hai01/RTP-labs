@@ -9,7 +9,8 @@ import scala.concurrent.duration.DurationInt
 
 class PoolSupervisor(workerPool: ActorRef,
                     workersCount: Int,
-                     emotions: Map[String, Double]) extends Actor with ActorLogging {
+                     emotions: Map[String, Double],
+                     batcher: ActorRef) extends Actor with ActorLogging {
 
   // Use the default supervisor strategy for actors under this supervisor
   override val supervisorStrategy: SupervisorStrategy =
@@ -24,7 +25,7 @@ class PoolSupervisor(workerPool: ActorRef,
   // Create a sequence of worker actors as routees, and register them for termination events
   private var routees = IndexedSeq.fill(nrOfActors) {
     val name = workerName()
-    val r = context.actorOf(TextPrinter.props(pauseDuration, sentimentValues), name)
+    val r = context.actorOf(TextPrinter.props(pauseDuration, sentimentValues, batcher), name)
     context.watch(r) // Register for termination events
     ActorRefRoutee(r)
   }
@@ -47,7 +48,7 @@ class PoolSupervisor(workerPool: ActorRef,
       // Create a new worker actor to replace the dead one, and register it for termination events
       val name = workerName()
       //val newTweetPrinter = context.actorOf(TextPrinter.props(pauseDuration), name)
-      val newTweetPrinter = context.actorOf(TextPrinter.props(pauseDuration, sentimentValues), name)
+      val newTweetPrinter = context.actorOf(TextPrinter.props(pauseDuration,sentimentValues, batcher), name)
       context.watch(newTweetPrinter)
 
       // Notify the worker pool about the dead and new actors
@@ -64,5 +65,6 @@ class PoolSupervisor(workerPool: ActorRef,
 object PoolSupervisor {
   def props(workerPool: ActorRef,
             workersCount: Int,
-            emotions: Map[String, Double]): Props = Props(new PoolSupervisor(workerPool,workersCount, emotions))
+            emotions: Map[String, Double],
+            batcher: ActorRef): Props = Props(new PoolSupervisor(workerPool,workersCount, emotions, batcher))
 }

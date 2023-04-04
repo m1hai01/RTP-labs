@@ -2,6 +2,7 @@ import Week1.{StreamReader, TextPrinter}
 import Week2.{PoolSupervisor, WorkerPool}
 import Week4.SentimentReader
 import Week4.SentimentReader.Send
+import Week5.Batcher
 import akka.actor
 import akka.pattern.ask
 import akka.util.Timeout
@@ -29,13 +30,14 @@ object Main {
     val future = sentimentReader ? Send
     val emotions = Await.result(future, timeout.duration).asInstanceOf[mutable.Map[String, Double]]
     val workersCount = 3
+    val batchSize = 30
+    val timerTime = 1.seconds
 
 
-    //val textPrinter = system.actorOf(TextPrinter.props(30.milliseconds), "TextPrinter")
+    val batcher = system.actorOf(Batcher.props(batchSize, timerTime), "TweetBatcher")
 
     val workerPool = system.actorOf(WorkerPool.props, "WorkerPool")
-    //val poolSupervisor = system.actorOf(PoolSupervisor.props(workerPool), "PoolSupervisor")
-    val poolSupervisor = system.actorOf(PoolSupervisor.props(workerPool, workersCount, emotions), "PoolSupervisor")
+    val poolSupervisor = system.actorOf(PoolSupervisor.props(workerPool, workersCount, emotions, batcher), "PoolSupervisor")
 
     val streamReader = system.actorOf(StreamReader.props(tweets1, workerPool), "StreamReader")
     val streamReader2 = system.actorOf(StreamReader.props(tweets2, workerPool), "StreamReader2")

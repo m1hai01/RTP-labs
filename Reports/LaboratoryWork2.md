@@ -298,6 +298,67 @@ First, it extracts the user object from the tweet JSON using a helper method cal
 
 If the user has no followers, the method returns "0" as the engagement ratio to avoid a divide-by-zero error. Otherwise, it calculates the engagement ratio as the sum of favorites and retweets divided by followers, and converts the result to a string.
 
+## P1W5
+
+**Task 1 (Minimal Task)** -- Create an actor that would collect the redacted tweets from Workers and would print them in batches. Instead of printing the tweets, the Worker should now send them to the Batcher, which then prints them. The batch size should be parametrizable.
+
+```scala
+class Batcher(batchSize: Int) extends Actor with ActorLogging {
+   changes after initialization
+  private val tweetBatch: mutable.Queue[String] = mutable.Queue[String]()
+  private var currentBatchSize: Int = 0
+  override def receive: Receive = {
+    case GetTweet(tweet) =>
+      if (currentBatchSize < batchSize) {
+        currentBatchSize += 1
+        tweetBatch.enqueue(tweet)
+      } else {
+        currentBatchSize = 0
+        while (tweetBatch.nonEmpty) {
+          val tweet = tweetBatch.dequeue
+          log.info(tweet)
+        }
+      }
+  }
+}
+```
+This code defines an actor that batches tweets. It receives GetTweet(tweet) messages and adds the tweets to a mutable queue tweetBatch. When the queue size reaches the batchSize, it logs all the tweets and clears the queue.
+
+The actor has a mutable state, which can lead to synchronization issues in a concurrent environment. Also, the currentBatchSize variable is not necessary since it can be computed from the tweetBatch queue size. The while loop used to log the tweets and clear the queue is blocking, and it can prevent the actor from processing other messages while it executes.
+
+**Task 2 (Main Task)** --Continue your Batcher actor. If, in a given time window, the Batcher does not receive enough data to print a batch, it should still print it. Of course, the actor should retain any existing behaviour. The time window should be parametrizable.
+
+```scala
+timers.startTimerAtFixedRate(TickCancellationKey, PrintTweets, timerTime)
+
+else {
+        // if the current batch is full, print the tweets and reset the batch
+        self ! PrintTweets
+        timers.cancel(TickCancellationKey)
+        timers.startTimerAtFixedRate(TickCancellationKey, PrintTweets, timerTime)
+        tweetBatch.enqueue(tweet)
+      }
+
+    case PrintTweets =>
+      // print the size of the current batch
+      println(s"Printing ${currentBatchSize} batches!")
+      // reset the current batch size to 0
+      currentBatchSize = 0
+      // dequeue tweets from the batch and log them
+      while (tweetBatch.nonEmpty) {
+        val tweet = tweetBatch.dequeue
+        log.info(s"Tweet: ${tweet}")
+      }
+  
+```
+
+This code appears to be part of an actor that batches tweets and prints them periodically.
+
+The startTimerAtFixedRate method starts a timer that sends PrintTweets messages to the actor every timerTime interval. If the current batch is full, the actor prints the tweets, resets the batch, and starts the timer again. The timers.cancel(TickCancellationKey) line cancels any previously scheduled timer with the same key before starting a new one.
+
+The PrintTweets message handler prints the size of the current batch and dequeues the tweets from the tweetBatch queue and logs them. The currentBatchSize variable is set to 0, indicating that a new batch will start receiving tweets.
+
+This implementation has the same issues as the previous code: mutable state and blocking while loop. Also, the println statement may cause concurrency issues when multiple threads try to print to the console at the same time.
 
 ## Bibliography
 

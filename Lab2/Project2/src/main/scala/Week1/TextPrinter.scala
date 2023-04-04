@@ -1,17 +1,19 @@
 package Week1
 
-import akka.actor.{Actor, ActorLogging, Props}
+import Week5.Batcher.GetTweet
+import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import io.circe._
 import io.circe.Json
 import io.circe.parser._
-import scala.collection.mutable.Map
 
+import scala.collection.mutable.Map
 import scala.concurrent.duration.{DurationInt, FiniteDuration}
 import scala.util.Random
 
 // This class represents an actor that will print tweets to console
 class TextPrinter(sleepTime: FiniteDuration,
-                 emotions: Map[String, Double]) extends Actor with ActorLogging {
+                 emotions: Map[String, Double],
+                  batcher: ActorRef) extends Actor with ActorLogging {
 
   implicit val system = context.system
   implicit val dispatcher = context.dispatcher
@@ -103,6 +105,9 @@ class TextPrinter(sleepTime: FiniteDuration,
       val engagementRatio = ComputeEngagementRatio(tweetTweet)
       println(sentimentScore)
       println(engagementRatio)
+
+      batcher ! GetTweet(tweetText)
+
       // Sleeping for a random time between 10-50 milliseconds + the specified sleep time
       Thread.sleep(Random.between(10, 50) + sleepTime.toMillis)
   }
@@ -155,7 +160,8 @@ class TextPrinter(sleepTime: FiniteDuration,
 // A companion object to the TextPrinter class that provides a factory method for creating TextPrinter actor props
 object TextPrinter {
   def props(sleepTime: FiniteDuration,
-            emotions: Map[String, Double]): Props = Props(new TextPrinter(sleepTime, emotions))
+            emotions: Map[String, Double],
+            batcher: ActorRef): Props = Props(new TextPrinter(sleepTime, emotions, batcher))
   // A case class that represents a PrintTweet message containing the tweet as a String
   case class PrintTweet(tweet: String)
 }
