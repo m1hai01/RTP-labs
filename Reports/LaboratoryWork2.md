@@ -360,10 +360,63 @@ The PrintTweets message handler prints the size of the current batch and dequeue
 
 This implementation has the same issues as the previous code: mutable state and blocking while loop. Also, the println statement may cause concurrency issues when multiple threads try to print to the console at the same time.
 
+## P1W6
+
+**Task 1 (Minimal Task)** --Create a database that would store the tweets processed by your system.
+
+```scala
+override def receive: Receive = {
+  case GetTweet(id) =>
+    val tweet = jedis.hget("tweets", id)
+    sender() ! mapper.readValue(tweet, classOf[String])
+  case CreateTweet(tweet, id) =>
+    jedis.hset("tweets", id, tweet)
+  case GetTweets(count) =>
+    val tweets = jedis.hgetAll("tweets")
+    val returnTweets = tweets.values().toArray().map(tweet => mapper.readValue(tweet.toString, classOf[String])).take(count.getOrElse(tweets.size()))
+    sender() ! returnTweets
+}
+
+```
+The code above is an implementation of an Akka actor called TweetDb, which interacts with a Redis database to store and retrieve tweets. The actor defines a receive method that handles messages sent to it. The actor can receive three types of messages: GetTweet, CreateTweet, and GetTweets.
+
+When the actor receives a GetTweet message with an ID, it retrieves the corresponding tweet from Redis and sends it back to the sender. When it receives a CreateTweet message with a tweet and an ID, it stores the tweet in Redis with the given ID. When it receives a GetTweets message with a count (optional), it retrieves all tweets from Redis and sends them back to the sender. The number of tweets returned is either the specified count or all tweets if the count is not specified.
+
+The actor uses the Jackson JSON library to serialize and deserialize tweet data, and the Jedis client to communicate with Redis.
+
+**Task 2 (Minimal Task)** --Continue your Batcher actor. Instead of printing the batches of tweets, the
+actor should now send them to the database, which will persist them.
+
+```scala
+case SaveTweets =>
+println(s"Saving ${currentBatchSize} batches!")
+currentBatchSize = 0
+while (tweetBatch.nonEmpty) {
+val tweet = tweetBatch.dequeue
+val guid = java.util.UUID.randomUUID.toString
+tweetsDatabase ! TweetDb.CreateTweet(tweet, guid)
+}
+self ! PrintSavedTweets
+
+case PrintSavedTweets =>
+val random = scala.util.Random
+val count = random.nextInt(2)
+if (count == 1) {
+val future = tweetsDatabase ? TweetDb.GetTweets(Some(10))
+val tweets = Await.result(future, timeout.duration).asInstanceOf[Array[String]]
+tweets.foreach(tweet => log.info(tweet))
+}
+```
+
+The first part of the code block is triggered when the actor receives a SaveTweets message. It dequeues tweets from a temporary queue, generates a GUID for each tweet, and sends a CreateTweet message with the tweet and GUID as parameters to the tweetsDatabase actor. Once all the tweets have been saved, it sends a PrintSavedTweets message to itself.
+
+The second part of the code block is triggered when the actor receives a PrintSavedTweets message. It generates a random number, and if it is 1, it sends a GetTweets message with a limit of 10 to the tweetsDatabase actor. It then waits for the future to complete, gets the result as an array of strings, and prints each tweet using the actor's log method.
+
 ## Bibliography
 
 - Installation guide to install [Scala](https://docs.scala-lang.org/getting-started/index.html).
 - Scala [cheatsheet](https://docs.scala-lang.org/cheatsheets/index.html).
 - Scala [Basics](https://docs.scala-lang.org/tour/basics.html).
 - Akka [Actors](https://developer.lightbend.com/guides/akka-quickstart-scala/index.html) Quickstart with Scala.
--  Introduction to [Actors](https://doc.akka.io/docs/akka/current/typed/actors.html).
+- Introduction to [Actors](https://doc.akka.io/docs/akka/current/typed/actors.html).
+- Documentation of [Redis](https://redis.io/docs/).

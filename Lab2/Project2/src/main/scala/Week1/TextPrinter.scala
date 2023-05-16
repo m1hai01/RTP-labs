@@ -99,12 +99,12 @@ class TextPrinter(sleepTime: FiniteDuration,
         tweetText = tweetText.replaceAll(s"(?i)\\b$word\\b", "*" * word.length)
       }
       // Printing the modified tweet text to console
-      println(tweetText)
+      //println(tweetText)
 
       val sentimentScore = ComputeSentimentScore(tweetText.toString())
       val engagementRatio = ComputeEngagementRatio(tweetTweet)
-      println(sentimentScore)
-      println(engagementRatio)
+      //println(sentimentScore)
+      //println(engagementRatio)
 
       batcher ! GetTweet(tweetText)
 

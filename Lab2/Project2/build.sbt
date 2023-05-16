@@ -20,6 +20,7 @@ libraryDependencies += "com.fasterxml.jackson.core" % "jackson-databind" % "2.13
 libraryDependencies += "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.13.1"
 libraryDependencies += "com.lightbend.akka" %% "akka-stream-alpakka-sse" % "5.0.0"
 libraryDependencies += "com.typesafe.play" %% "play-json" % "2.9.2"
+libraryDependencies += "redis.clients" % "jedis" % "4.3.0"
 
 val circeVersion = "0.14.1"
 
