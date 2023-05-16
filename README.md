@@ -16,8 +16,10 @@
 
 ## Laboratory works
 
-[Laboratory Work #1](https://github.com/m1hai01/RTP-labs/tree/main/Lab1/Welcome/src/main/scala)
-[Laboratory Work #2]([https://github.com/m1hai01/RTP-labs/tree/main/Lab1/Welcome/src/main/scala](https://github.com/m1hai01/RTP-labs/tree/main/Lab2/Project2/src/main/scala))
+[Laboratory Work #1](https://github.com/m1hai01/RTP-labs/tree/main/Lab1/Welcome/src/main/scala),
+
+[Laboratory Work #2]([https://github.com/m1hai01/RTP-labs/tree/main/Lab1/Welcome/src/main/scala](https://github.com/m1hai01/RTP-labs/tree/main/Lab2/Project2/src/main/scala)),
+
 [Laboratory Work #3]([https://github.com/m1hai01/RTP-labs/tree/main/Lab1/Welcome/src/main/scala](https://github.com/m1hai01/RTP-labs/tree/main/LAB_3))
 
 
